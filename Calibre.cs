@@ -46,16 +46,32 @@ namespace CalibreView
                 try
                 {
                     sqlite.Open();
-
-                    SqliteCommand createTable = new SqliteCommand("SELECT title,author_sort,path,id FROM books", sqlite);
+                    
+                    SqliteCommand createTable 
+                        = new SqliteCommand(
+                            "SELECT " +
+                            "   books.title, " +
+                            "   IFNULL(series.name, \"\")," +
+                            "   books.series_index, " +
+                            "   books.author_sort, " +
+                            "   books.path, " +
+                            "   books.id " +
+                            "FROM " +
+                            "   books " +
+                            "   LEFT JOIN books_series_link ON books.id = books_series_link.book " +
+                            "   LEFT JOIN series ON series.id = books_series_link.series " +
+                            "ORDER BY books.title", 
+                            sqlite);
+                    
                     SqliteDataReader query = createTable.ExecuteReader();
 
                     while (query.Read())
                     {
-                        string title    = query.GetString(0);
-                        string author   = query.GetString(1);
-                        string path     = query.GetString(2);
-                        int id          = query.GetInt32(3);
+                        string title        = query.GetString(0);
+                        string series_name  = query.GetString(1);
+                        string series_index = query.GetString(2);
+                        string author_name  = query.GetString(3);
+                        string path         = query.GetString(4);
 
                         StorageFolder folder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.
                             GetFolderAsync("PickedFolderToken");
@@ -63,9 +79,10 @@ namespace CalibreView
 
                         Book book = new Book(
                             title,
-                            author,
-                            cover,
-                            id
+                            series_name,
+                            series_index,
+                            author_name,
+                            cover
                         );
 
                         Books.Add(book);

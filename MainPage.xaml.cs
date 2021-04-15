@@ -62,12 +62,15 @@ namespace CalibreView
                 Paragraph paragraph1 = new Paragraph();
                 Paragraph paragraph2 = new Paragraph();
                 Run title = new Run();
-                Run summary = new Run();
-                title.Text = $"{book.Author} - {book.Title}";
+                title.Text = $"{book.Title}{System.Environment.NewLine}{book.AuthorName}";
+                Run series = new Run();
+                if (book.SeriesName == "")
+                    series.Text = $"";
+                else
+                    series.Text = $"{book.SeriesName} [{book.SeriesIndex}]";
                 title.FontWeight = FontWeights.Bold;
-                summary.Text = book.Cover.ToString();
                 paragraph1.Inlines.Add(title);
-                paragraph2.Inlines.Add(summary);
+                paragraph2.Inlines.Add(series);
                 richTextBlock.Blocks.Add(paragraph1);
                 richTextBlock.Blocks.Add(paragraph2);
 
@@ -88,7 +91,14 @@ namespace CalibreView
             await calibre.GetBooks();
 
             // Populate Xaml page
-            await Populate(calibre);
+            try
+            {
+                await Populate(calibre);
+            }
+            catch(Exception e)
+            {
+                Debug.WriteLine(e.Message);
+            }
         }
 
         public MainPage()

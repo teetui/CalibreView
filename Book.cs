@@ -12,21 +12,25 @@ namespace CalibreView
         public string Title
         { get; set; }
 
-        public string Author
+        public string SeriesName
+        { get; set; }
+
+        public string SeriesIndex
+        { get; set; }
+
+        public string AuthorName
         { get; set; }
 
         public Uri Cover
         { get; set; }
 
-        public int ID
-        { get; set; }
-
-        public Book(string title, string author, Uri cover, int id)
+        public Book(string title, string series_name, string series_index, string author_name, Uri cover)
         {
             Title = title;
-            Author = author;
+            SeriesName = series_name;
+            SeriesIndex = series_index;
+            AuthorName = author_name;
             Cover = cover;
-            ID = id;
         }
     }
 }
