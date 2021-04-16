@@ -29,11 +29,6 @@ namespace CalibreView
             StorageFolder LibraryFolder = await folderPicker.PickSingleFolderAsync();
             if (LibraryFolder != null)
             {
-                // Application now has read/write access to all contents in the picked folder
-                // (including other sub-folder contents)
-                Windows.Storage.AccessCache.StorageApplicationPermissions.
-                    FutureAccessList.AddOrReplace("PickedFolderToken", LibraryFolder);
-
                 // copy sqlite database file to temporary local folder,
                 // because UWP file access permissions don't work in SQLite.
                 MetadataFile = await StorageFile.GetFileFromPathAsync(LibraryFolder.Path + "\\metadata.db");
@@ -51,37 +46,43 @@ namespace CalibreView
                         = new SqliteCommand(
                             "SELECT " +
                             "   books.title, " +
+                            "   books.sort, " +
                             "   IFNULL(series.name, \"\")," +
                             "   books.series_index, " +
+                            "   authors.name, " +
                             "   books.author_sort, " +
                             "   books.path, " +
                             "   books.id " +
                             "FROM " +
                             "   books " +
+                            "   LEFT JOIN books_authors_link ON books.id = books_authors_link.book " +
+                            "   LEFT JOIN authors ON authors.id = books_authors_link.author" +
                             "   LEFT JOIN books_series_link ON books.id = books_series_link.book " +
                             "   LEFT JOIN series ON series.id = books_series_link.series " +
-                            "ORDER BY books.title", 
+                            "ORDER BY books.sort", 
                             sqlite);
                     
                     SqliteDataReader query = createTable.ExecuteReader();
 
                     while (query.Read())
                     {
-                        string title        = query.GetString(0);
-                        string series_name  = query.GetString(1);
-                        string series_index = query.GetString(2);
-                        string author_name  = query.GetString(3);
-                        string path         = query.GetString(4);
+                        string title_name   = query.GetString(0);
+                        string title_sort   = query.GetString(1);
+                        string series_name  = query.GetString(2);
+                        string series_index = query.GetString(3);
+                        string author_name  = query.GetString(4);
+                        string author_sort  = query.GetString(5);
+                        string path         = query.GetString(6);
 
-                        StorageFolder folder = await Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.
-                            GetFolderAsync("PickedFolderToken");
-                        Uri cover = new Uri(folder.Path + "\\" + path + "\\cover.jpg");
+                        Uri cover = new Uri(LibraryFolder.Path + "\\" + path + "\\cover.jpg");
 
                         Book book = new Book(
-                            title,
+                            title_name,
+                            title_sort,
                             series_name,
                             series_index,
                             author_name,
+                            author_sort,
                             cover
                         );
 

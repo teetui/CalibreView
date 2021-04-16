@@ -62,7 +62,7 @@ namespace CalibreView
                 Paragraph paragraph1 = new Paragraph();
                 Paragraph paragraph2 = new Paragraph();
                 Run title = new Run();
-                title.Text = $"{book.Title}{System.Environment.NewLine}{book.AuthorName}";
+                title.Text = $"{book.TitleName}{System.Environment.NewLine}{book.AuthorName}";
                 Run series = new Run();
                 if (book.SeriesName == "")
                     series.Text = $"";
